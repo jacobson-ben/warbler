@@ -202,42 +202,36 @@ def stop_following(follow_id):
     return redirect(f"/users/{g.user.id}/following")
 
 
-@app.route('/users/<int:user_id>/profile', methods=["GET", "POST"])
-def profile(user_id):
+@app.route('/users/profile/', methods=["GET", "POST"])
+def profile():
     """Update profile for current user."""
 
-    if CURR_USER_KEY not in session or session[CURR_USER_KEY] != user_id:
+    if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
     
-    usr = User.query.get_or_404(session[CURR_USER_KEY])
-    form = EditForm(obj=usr)
-    form.populate_obj(usr)
+    user = g.user
+    form = EditForm(obj=user)
 
     if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
-        email = form.email.data
-        image_url = form.image_url.data
-        header_image_url = form.header_image_url.data
-        bio = form.bio.data
-        
-        user = User.authenticate(username, password)
 
-        if user:
-            user.username = username
-            user.email = username
-            user.image_url = username
-            header_image_url = username
-            user.bio = username
+        if User.authenticate(form.username.data, form.password.data):
+            user.username = form.username.data
+            user.email = form.email.data
+            user.image_url = form.image_url.data
+            user.header_image_url = form.header_image_url.data
+            user.bio = form.bio.data
 
             db.session.commit()
 
-            return redirect(f"/users/{g.user.id}")
+            return redirect(f"/users/{user.id}")
         else:
             flash("Access not authorized! Invalid password")
             return redirect('/')
-    return render_template('edit.html')
+
+    form.populate_obj(user)
+
+    return render_template('users/edit.html', form=form, user=user )
 
 
 @app.route('/users/delete', methods=["POST"])
@@ -316,13 +310,17 @@ def homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
-
+    
     if g.user:
+        following_ids = [f.id for f in g.user.following] 
+        following_ids.append(g.user.id)
         messages = (Message
                     .query
+                    .filter(Message.user_id.in_(following_ids))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
+                    
 
         return render_template('home.html', messages=messages)
 
