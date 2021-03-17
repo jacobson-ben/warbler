@@ -237,7 +237,7 @@ def profile(user_id):
         else:
             flash("Access not authorized! Invalid password")
             return redirect('/')
-    return render_template('edit.html')
+    return render_template('users/edit.html')
 
 
 @app.route('/users/delete', methods=["POST"])
