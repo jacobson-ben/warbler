@@ -36,7 +36,7 @@ class UserModelTestCase(TestCase):
         db.drop_all()
         db.create_all()
 
-        u1 = User.signup("bob", "bbb@hotmail.com", "12345", None)
+        u1 = User.signup("bbb@hotmail.com", "12345", None)
         u1.id = 1111
 
         u2 = User.signup("coco", "coco@hotmail.com", "23456", None)
