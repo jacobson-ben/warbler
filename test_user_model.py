@@ -10,6 +10,7 @@ from unittest import TestCase
 from sqlalchemy import exc
 
 from models import db, User, Message, Follows
+from sqlalchemy import exc
 
 # BEFORE we import our app, let's set an environmental variable
 # to use a different database for tests (we need to do this
@@ -34,6 +35,16 @@ class UserModelTestCase(TestCase):
 
     def setUp(self):
         """Create test client, add sample data."""
+        db.drop_all()
+        db.create_all()
+
+        u1 = User.signup("bob", "bbb@hotmail.com", "12345", None)
+        u1.id = 1111
+
+        u2 = User.signup("coco", "coco@hotmail.com", "23456", None)
+        u2.id = 2222
+        db.session.add(u1, u2)
+        db.session.commit()
 
         User.query.delete()
         Message.query.delete()
