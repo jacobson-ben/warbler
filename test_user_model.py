@@ -9,7 +9,7 @@ import os
 from unittest import TestCase
 from sqlalchemy import exc
 
-from models import db, User, Message, Follows
+from models import db, User, Message, Follows, connect_db
 
 # BEFORE we import our app, let's set an environmental variable
 # to use a different database for tests (we need to do this
@@ -25,7 +25,7 @@ from app import app
 # Create our tables (we do this here, so we only create the tables
 # once for all tests --- in each test, we'll delete the data
 # and create fresh new clean test data
-
+connect_db(app)
 db.create_all()
 
 
@@ -149,7 +149,8 @@ class UserModelTestCase(TestCase):
         usr = User.authenticate(self.u1.username, "testing")
         self.assertIsNotNone(usr)
         self.assertEqual(usr.id, self.u1.id)
-        
-
-        
+        #testing invalid username
+        self.assertFalse(User.authenticate("baduserisfake", "fakepassword"))
+        #test for wrong password
+        self.assertFalse(User.authenticate(self.u1.username, "fakepassword"))
 
