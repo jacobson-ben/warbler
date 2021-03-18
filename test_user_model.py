@@ -10,7 +10,6 @@ from unittest import TestCase
 from sqlalchemy import exc
 
 from models import db, User, Message, Follows
-from sqlalchemy import exc
 
 # BEFORE we import our app, let's set an environmental variable
 # to use a different database for tests (we need to do this
@@ -35,16 +34,6 @@ class UserModelTestCase(TestCase):
 
     def setUp(self):
         """Create test client, add sample data."""
-        db.drop_all()
-        db.create_all()
-
-        u1 = User.signup("bbb@hotmail.com", "12345", None)
-        u1.id = 1111
-
-        u2 = User.signup("coco", "coco@hotmail.com", "23456", None)
-        u2.id = 2222
-        db.session.add(u1, u2)
-        db.session.commit()
 
         User.query.delete()
         Message.query.delete()
@@ -52,13 +41,13 @@ class UserModelTestCase(TestCase):
 
         self.client = app.test_client()
 
-        u1 = User(username="Benny", email="testing11@gmail.com", password="testing")
+        u1 = User.signup("Benny", "testing11@gmail.com", "testing", None)
         u1.id = 1000
 
-        u2 = User(username="Zacky", email="testing12@gmail.com", password="testing")
+        u2 = User.signup("Zacky", "testing12@gmail.com", "testing", None)
         u2.id = 2000
 
-        u3 = User(username="Johnathan", email="testing13@gmail.com", password="testing")
+        u3 = User.signup("Johnathan", "testing13@gmail.com", "testing", None)
         u3.id = 3000
 
         db.session.commit()
@@ -69,6 +58,7 @@ class UserModelTestCase(TestCase):
 
 
     def tearDown(self):
+        
         db.session.rollback()
 
 
@@ -152,5 +142,14 @@ class UserModelTestCase(TestCase):
         test_user = User.signup("T", None, "testing", None)
         with self.assertRaises(exc.IntegrityError): 
             db.session.commit()
+
+    
+    def test_valid_authentication(self):
+
+        usr = User.authenticate(self.u1.username, "testing")
+        self.assertIsNotNone(usr)
+        self.assertEqual(usr.id, self.u1.id)
+        
+
         
 
