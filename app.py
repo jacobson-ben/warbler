@@ -24,6 +24,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
+db.create_all()
 
 
 ##############################################################################
@@ -234,6 +235,19 @@ def profile():
     return render_template('users/edit.html', form=form, user=user )
 
 
+@app.route('/users/<int:user_id>/likes')
+def show_likes(user_id):
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
+    user = User.query.get_or_404(user_id)
+
+    return render_template("users/likes.html", user=user)
+
+
+
 @app.route('/users/delete', methods=["POST"])
 def delete_user():
     """Delete user."""
@@ -298,20 +312,24 @@ def messages_destroy(message_id):
 
     return redirect(f"/users/{g.user.id}")
 
-@app.route("/messages/<int:message_id>/add_like", methods=["POST"])
+@app.route("/messages/<int:msg_id>/add_like", methods=["POST"])
 def add_like(msg_id):
     """When like button is clicked record like and redirect to likes page"""
 
     msg = Message.query.get(msg_id)
 
-    if message.user_id == g.user.id:
-        return("You cant like your own message")
+    if msg.user_id == g.user.id:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
 
     if msg in g.user.likes:
-        g.user.likes.delete(msg)
-    g.user.likes.append(msg)
+        g.user.likes.remove(msg)
+    else:
+        g.user.likes.append(msg)
 
     db.session.commit()
+
+    return redirect(request.referrer)
 
 
 
