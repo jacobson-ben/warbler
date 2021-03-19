@@ -301,11 +301,10 @@ def messages_show(message_id):
 @app.route('/messages/<int:message_id>/delete', methods=["POST"])
 def messages_destroy(message_id):
     """Delete a message."""
-
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-
+    
     msg = Message.query.get_or_404(message_id)
     
     if g.user.id != msg.user_id:
@@ -316,6 +315,7 @@ def messages_destroy(message_id):
     db.session.commit()
 
     return redirect(f"/users/{g.user.id}")
+
 
 @app.route("/messages/<int:msg_id>/add_like", methods=["POST"])
 def add_like(msg_id):

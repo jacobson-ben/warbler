@@ -53,6 +53,7 @@ class MessageViewTestCase(TestCase):
         self.u1_msg = Message(text="This is a test", user_id=1000)
         self.u1_msg.id = 2
 
+        db.session.add(self.u1_msg)
         db.session.commit()
 
     def test_add_and_delete_message_logged_in(self):
@@ -73,17 +74,16 @@ class MessageViewTestCase(TestCase):
             # Make sure it redirects
             self.assertEqual(resp.status_code, 302)
 
-            msg = Message.query.one()
+            msg = Message.query.filter_by(text="Hello").one()
             self.assertEqual(msg.text, "Hello")
             self.assertEqual(msg.user_id, self.testuser.id)
 
             resp1 = c.post(f"/messages/{msg.id}/delete")
 
-            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(resp1.status_code, 302)
             #check to make sure message no longer exists in the database
             self.assertEqual(Message.query.filter_by(id=msg.id).first(), None)
             
-
     def test_add_message_logged_out(self):
         """Can use add a message?"""
         
@@ -96,13 +96,11 @@ class MessageViewTestCase(TestCase):
         with self.client as c:
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.testuser.id
-        
-            resp = c.post(f"/messages/2/delete")
-            self.assertEqual(resp.status_code, 302)
-
-            msg = Message.query.get(2)
             
-            self.assertEqual(msg, None)
+            msg = Message.query.get(2)        
+            self.assertEqual(msg.id, 2)
+            resp = c.post("/messages/2/delete", follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
 
-        
-    
+            msg = Message.query.get(2)        
+            self.assertEqual(msg.id, 2)

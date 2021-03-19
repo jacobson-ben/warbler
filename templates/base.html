@@ -4,13 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Warbler</title>
-
+  
   <link rel="stylesheet"
         href="https://unpkg.com/bootstrap/dist/css/bootstrap.css">
   <script src="https://unpkg.com/jquery"></script>
-  <script src="https://unpkg.com/popper"></script>
   <script src="https://unpkg.com/bootstrap"></script>
-
+  <!-- <script src="https://unpkg.com/popper"></script> -->
   <link rel="stylesheet"
         href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
   <link rel="stylesheet" href="/static/stylesheets/style.css">
@@ -56,7 +55,8 @@
             <img src="{{ g.user.image_url }}" alt="{{ g.user.username }}">
           </a>
         </li>
-        <li><a href="/messages/new">New Message</a></li>
+        <!-- a href="/messages/new">New Message</a> -->
+        <li id="pop-modal">New Message</li>
         <li><a href="/logout">Log out</a></li>
       {% endif %}
 
@@ -64,7 +64,7 @@
   </div>
 </nav>
 
-<div class="container">
+<div id="to-append-modal" class="container">
 
   {% for category, message in get_flashed_messages(with_categories=True) %}
     <div class="alert alert-{{ category }}">{{ message }}</div>
@@ -74,5 +74,6 @@
   {% endblock %}
 
 </div>
+<script src="/static/modal.js"></script>
 </body>
 </html>
