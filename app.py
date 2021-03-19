@@ -284,9 +284,15 @@ def messages_add():
     db.session.add(new_warble)
     db.session.commit()
 
+    # get user data to pass back a warble can be created
+    user_id = g.user.id
+    username = g.user.username
+    user_image_url = g.user.image_url
+    user_abbr = {"user_id": user_id, "username": username, "user_image_url": user_image_url}
+
     serialized = Message.serialize(new_warble)
 
-    return jsonify(warble=serialized)
+    return jsonify(warble=serialized, user=user_abbr)
 
     # form = MessageForm()
 
