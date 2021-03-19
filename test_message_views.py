@@ -47,10 +47,15 @@ class MessageViewTestCase(TestCase):
                                     email="test@test.com",
                                     password="testuser",
                                     image_url=None)
+        
+        self.u1 = User.signup("Benny", "testing11@gmail.com", "testing", None)
+        self.u1.id = 1000
+        self.u1_msg = Message(text="This is a test", user_id=1000)
+        self.u1_msg.id = 2
 
         db.session.commit()
 
-    def test_add_message(self):
+    def test_add_and_delete_message_logged_in(self):
         """Can use add a message?"""
 
         # Since we need to change the session to mimic logging in,
@@ -70,3 +75,34 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+            self.assertEqual(msg.user_id, self.testuser.id)
+
+            resp1 = c.post(f"/messages/{msg.id}/delete")
+
+            self.assertEqual(resp.status_code, 302)
+            #check to make sure message no longer exists in the database
+            self.assertEqual(Message.query.filter_by(id=msg.id).first(), None)
+            
+
+    def test_add_message_logged_out(self):
+        """Can use add a message?"""
+        
+        resp = self.client.post("/messages/new", data={"text": "Hello"})
+        # Makes sure message was not added
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Message.query.filter_by(id=1).first(), None)
+    
+    def test_deleting_another_user_msg(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+        
+            resp = c.post(f"/messages/2/delete")
+            self.assertEqual(resp.status_code, 302)
+
+            msg = Message.query.get(2)
+            
+            self.assertEqual(msg, None)
+
+        
+    
