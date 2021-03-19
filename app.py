@@ -1,7 +1,7 @@
 import os
 import pdb
 
-from flask import Flask, render_template, request, flash, redirect, session, g, jsonify
+from flask import Flask, render_template, request, flash, redirect, session, g,jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
