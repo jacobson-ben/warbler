@@ -9,6 +9,7 @@
         href="https://unpkg.com/bootstrap/dist/css/bootstrap.css">
   <script src="https://unpkg.com/jquery"></script>
   <script src="https://unpkg.com/bootstrap"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script
   <!-- <script src="https://unpkg.com/popper"></script> -->
   <link rel="stylesheet"
         href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
@@ -64,11 +65,32 @@
   </div>
 </nav>
 
-<div id="to-append-modal" class="container">
+<div class="container">
 
   {% for category, message in get_flashed_messages(with_categories=True) %}
     <div class="alert alert-{{ category }}">{{ message }}</div>
   {% endfor %}
+
+  <div id="pop-up-modal" class="modal" tabindex="-1" role="dialog" display="hidden">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add a Warble</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form id="make-a-warble">
+          <div class="modal-body">
+            <input id="warble-text" type="text" placeholder="create warble">
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Add Warble</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   {% block content %}
   {% endblock %}

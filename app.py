@@ -1,7 +1,7 @@
 import os
 import pdb
 
-from flask import Flask, render_template, request, flash, redirect, session, g
+from flask import Flask, render_template, request, flash, redirect, session, g, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
@@ -267,7 +267,7 @@ def delete_user():
 ##############################################################################
 # Messages routes:
 
-@app.route('/messages/new', methods=["GET", "POST"])
+@app.route('/messages/new', methods=["POST"])
 def messages_add():
     """Add a message:
 
@@ -278,16 +278,26 @@ def messages_add():
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    form = MessageForm()
+    msg = request.json
+    text = msg['text']
+    new_warble = Message(text=text, user_id=g.user.id)
+    db.session.add(new_warble)
+    db.session.commit()
 
-    if form.validate_on_submit():
-        msg = Message(text=form.text.data)
-        g.user.messages.append(msg)
-        db.session.commit()
+    serialized = Message.serialize(new_warble)
 
-        return redirect(f"/users/{g.user.id}")
+    return jsonify(warble=serialized)
 
-    return render_template('messages/new.html', form=form)
+    # form = MessageForm()
+
+    # if form.validate_on_submit():
+    #     msg = Message(text=form.text.data)
+    #     g.user.messages.append(msg)
+    #     db.session.commit()
+
+    #     return redirect(f"/users/{g.user.id}")
+
+    # return render_template('messages/new.html', form=form)
 
 
 @app.route('/messages/<int:message_id>', methods=["GET"])

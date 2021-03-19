@@ -196,6 +196,16 @@ class Message(db.Model):
 
     user = db.relationship('User')
 
+    def serialize(self):
+        """Serialize to dictionary."""
+
+        return {
+            "id": self.id,
+            "text": self.text,
+            "timestamp": self.timestamp,
+            "user_id": self.user_id
+        }
+
 
 def connect_db(app):
     """Connect this database to provided Flask app.
